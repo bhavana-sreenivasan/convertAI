@@ -106,6 +106,6 @@ Enter your Groq API key when prompted and start the session.
 
 ```
 convertAI/
-└── index.html      # Entire app — UI + agent logic + analytics
+└── convertai.html      # Entire app — UI + agent logic + analytics
 ```
 
