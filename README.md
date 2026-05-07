@@ -57,7 +57,7 @@ Hook → Benefits → Objection Handling → CTA
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **LLM** — LLaMA 3.3 70B via [Groq](https://groq.com) (free tier)
 - **Frontend** — Vanilla HTML / CSS / JS (zero dependencies)
@@ -72,7 +72,7 @@ No installation needed. Just open the file:
 ```bash
 git clone https://github.com/bhavana-sreenivasan/convertAI
 cd convertAI
-open index.html   # or double-click the file
+open convertai.html   # or double-click the file
 ```
 
 Enter your Groq API key when prompted and start the session.
