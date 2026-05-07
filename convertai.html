@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ConvertAI — Rupeezy Partner Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@500;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #060810;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'DM Mono', 'Courier New', monospace;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      height: 700px;
+      width: 900px;
+      background: #0d0f14;
+      border-radius: 14px;
+      overflow: hidden;
+      color: #c8d0e0;
+      border: 0.5px solid #1e2330;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #0a0c10;
+      border-bottom: 0.5px solid #1e2330;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 30px;
+      height: 30px;
+      background: #00c47d;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0a0c10;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-sub {
+      font-size: 9px;
+      color: #4a5568;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lang-select {
+      background: #1a1e2b;
+      border: 0.5px solid #2a3040;
+      color: #8892a4;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+    }
+
+    .call-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #4a5568;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4a5568;
+    }
+
+    .status-dot.active {
+      background: #00c47d;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    /* Layout */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 0.5px solid #1e2330;
+      min-width: 0;
+    }
+
+    /* Messages */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: #2a3040;
+      border-radius: 2px;
+    }
+
+    .msg {
+      display: flex;
+      gap: 8px;
+      max-width: 100%;
+    }
+
+    .msg.user {
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .msg-avatar.agent {
+      background: #00c47d22;
+      color: #00c47d;
+      border: 0.5px solid #00c47d44;
+    }
+
+    .msg-avatar.user {
+      background: #3b82f622;
+      color: #60a5fa;
+      border: 0.5px solid #3b82f644;
+    }
+
+    .msg-bubble {
+      max-width: calc(100% - 40px);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    .msg-bubble.agent {
+      background: #141820;
+      border: 0.5px solid #1e2330;
+      color: #c8d0e0;
+      border-top-left-radius: 2px;
+    }
+
+    .msg-bubble.user {
+      background: #0f2040;
+      border: 0.5px solid #1e3a6e;
+      color: #93c5fd;
+      border-top-right-radius: 2px;
+    }
+
+    .msg-bubble.system {
+      background: #0a1a10;
+      border: 0.5px solid #00c47d33;
+      color: #00c47d99;
+      font-size: 11px;
+      font-style: italic;
+    }
+
+    /* Typing */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 9px 12px;
+      background: #141820;
+      border: 0.5px solid #1e2330;
+      border-radius: 8px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 5px;
+      height: 5px;
+      background: #00c47d;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0)
+      }
+
+      30% {
+        transform: translateY(-4px)
+      }
+    }
+
+    /* Quick replies */
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 0 12px 8px;
+    }
+
+    .quick-reply {
+      background: #141820;
+      border: 0.5px solid #2a3040;
+      color: #8892a4;
+      font-size: 10px;
+      padding: 4px 9px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      transition: all .15s;
+    }
+
+    .quick-reply:hover {
+      border-color: #00c47d66;
+      color: #00c47d;
+    }
+
+    /* Input */
+    .input-row {
+      display: flex;
+      gap: 6px;
+      padding: 10px 12px;
+      border-top: 0.5px solid #1e2330;
+      background: #0a0c10;
+      flex-shrink: 0;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: #141820;
+      border: 0.5px solid #2a3040;
+      color: #c8d0e0;
+      font-size: 12.5px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      outline: none;
+      height: 38px;
+    }
+
+    .chat-input:focus {
+      border-color: #00c47d66;
+    }
+
+    .chat-input::placeholder {
+      color: #3a4455;
+    }
+
+    .send-btn {
+      background: #00c47d;
+      border: none;
+      color: #0a0c10;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 0 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: .5px;
+      transition: opacity .15s;
+    }
+
+    .send-btn:hover {
+      opacity: .85;
+    }
+
+    .send-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    /* Analytics */
+    .analytics-panel {
+      width: 224px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: #0a0c10;
+      overflow-y: auto;
+    }
+
+    .analytics-panel::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    .analytics-panel::-webkit-scrollbar-thumb {
+      background: #2a3040;
+    }
+
+    .section {
+      padding: 10px 12px;
+      border-bottom: 0.5px solid #1e2330;
+    }
+
+    .section-title {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+
+    /* Score ring */
+    .score-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0;
+    }
+
+    .score-ring {
+      position: relative;
+      width: 76px;
+      height: 76px;
+    }
+
+    .score-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .score-value {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-number {
+      font-size: 22px;
+      font-weight: 500;
+      font-family: 'Syne', sans-serif;
+      line-height: 1;
+    }
+
+    .score-label {
+      font-size: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .score-tag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 12px;
+      border-radius: 3px;
+      letter-spacing: .5px;
+    }
+
+    .score-tag.hot {
+      background: #ff4d4d22;
+      color: #ff6b6b;
+      border: 0.5px solid #ff4d4d44;
+    }
+
+    .score-tag.warm {
+      background: #f59e0b22;
+      color: #fbbf24;
+      border: 0.5px solid #f59e0b44;
+    }
+
+    .score-tag.cold {
+      background: #3b82f622;
+      color: #60a5fa;
+      border: 0.5px solid #3b82f644;
+    }
+
+    .score-tag.neutral {
+      background: #1e2330;
+      color: #4a5568;
+      border: 0.5px solid #2a3040;
+    }
+
+    /* Objections */
+    .objection-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .obj-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 7px;
+      border-radius: 4px;
+      border: 0.5px solid #1e2330;
+      background: #141820;
+      font-size: 10px;
+      transition: all .3s;
+    }
+
+    .obj-item.detected {
+      border-color: #f59e0b44;
+      background: #f59e0b0a;
+    }
+
+    .obj-item.handled {
+      border-color: #00c47d44;
+      background: #00c47d0a;
+    }
+
+    .obj-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #2a3040;
+      flex-shrink: 0;
+    }
+
+    .obj-dot.detected {
+      background: #f59e0b;
+    }
+
+    .obj-dot.handled {
+      background: #00c47d;
+    }
+
+    .obj-text {
+      color: #8892a4;
+      line-height: 1.3;
+    }
+
+    .obj-text.detected {
+      color: #fbbf24;
+    }
+
+    .obj-text.handled {
+      color: #6ee7b7;
+    }
+
+    /* Compliance */
+    .compliance-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .comp-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 10px;
+      padding: 3px 0;
+    }
+
+    .comp-icon {
+      font-size: 10px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .comp-ok {
+      color: #00c47d;
+    }
+
+    .comp-warn {
+      color: #f59e0b;
+    }
+
+    .comp-text {
+      color: #8892a4;
+      line-height: 1.3;
+    }
+
+    .comp-text.warn {
+      color: #fbbf24;
+    }
+
+    /* Metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .metric-card {
+      background: #141820;
+      border: 0.5px solid #1e2330;
+      border-radius: 6px;
+      padding: 7px 8px;
+    }
+
+    .metric-val {
+      font-size: 17px;
+      font-weight: 500;
+      font-family: 'Syne', sans-serif;
+      color: #00c47d;
+      line-height: 1;
+    }
+
+    .metric-lbl {
+      font-size: 9px;
+      color: #4a5568;
+      margin-top: 3px;
+      letter-spacing: .5px;
+    }
+
+    /* Summary */
+    .summary-btn {
+      margin: 10px 12px;
+      width: calc(100% - 24px);
+      background: transparent;
+      border: 0.5px solid #00c47d66;
+      color: #00c47d;
+      font-size: 10px;
+      padding: 7px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: .5px;
+      transition: all .15s;
+    }
+
+    .summary-btn:hover {
+      background: #00c47d11;
+    }
+
+    .summary-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .summary-box {
+      margin: 0 12px 10px;
+      background: #0a1a10;
+      border: 0.5px solid #00c47d33;
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 10px;
+      color: #6ee7b7;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="root">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">C</div>
+        <div>
+          <div class="logo-text">ConvertAI</div>
+          <div class="logo-sub">Rupeezy Partner Agent</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <select class="lang-select" id="langSelect">
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="hinglish">Hinglish</option>
+        </select>
+        <div class="call-status">
+          <div class="status-dot active"></div>
+          <span>Live</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="chat-panel">
+        <div class="messages" id="messages"></div>
+        <div class="quick-replies" id="quickReplies"></div>
+        <div class="input-row">
+          <input class="chat-input" id="chatInput" placeholder="Type your response as the lead..." />
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+      <div class="analytics-panel">
+        <div class="section">
+          <div class="section-title">Lead Score</div>
+          <div class="score-display">
+            <div class="score-ring">
+              <svg width="76" height="76" viewBox="0 0 76 76">
+                <circle cx="38" cy="38" r="31" fill="none" stroke="#1e2330" stroke-width="7" />
+                <circle cx="38" cy="38" r="31" fill="none" stroke="#00c47d" stroke-width="7" stroke-dasharray="194.8"
+                  stroke-dashoffset="194.8" stroke-linecap="round" id="scoreArc"
+                  style="transition:stroke-dashoffset .6s ease,stroke .4s ease;" />
+              </svg>
+              <div class="score-value">
+                <div class="score-number" id="scoreNum" style="color:#4a5568">—</div>
+                <div class="score-label" style="color:#4a5568">score</div>
+              </div>
+            </div>
+            <div class="score-tag neutral" id="scoreTag">WAITING</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Objections</div>
+          <div class="objection-list" id="objList">
+            <div class="obj-item" data-obj="broker">
+              <div class="obj-dot"></div>
+              <div class="obj-text">Already with broker</div>
+            </div>
+            <div class="obj-item" data-obj="contacts">
+              <div class="obj-dot"></div>
+              <div class="obj-text">Not enough contacts</div>
+            </div>
+            <div class="obj-item" data-obj="support">
+              <div class="obj-dot"></div>
+              <div class="obj-text">Client support concerns</div>
+            </div>
+            <div class="obj-item" data-obj="trust">
+              <div class="obj-dot"></div>
+              <div class="obj-text">Trustworthiness</div>
+            </div>
+            <div class="obj-item" data-obj="later">
+              <div class="obj-dot"></div>
+              <div class="obj-text">Call me later</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">SEBI Compliance</div>
+          <div class="compliance-items">
+            <div class="comp-item"><span class="comp-icon comp-ok">✓</span>
+              <div class="comp-text">No guaranteed returns</div>
+            </div>
+            <div class="comp-item"><span class="comp-icon comp-ok">✓</span>
+              <div class="comp-text">No misleading claims</div>
+            </div>
+            <div class="comp-item"><span class="comp-icon comp-ok">✓</span>
+              <div class="comp-text">Risk disclosure active</div>
+            </div>
+            <div class="comp-item" id="compAudit"><span class="comp-icon comp-ok">✓</span>
+              <div class="comp-text">Audit trail: clean</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Call Metrics</div>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-val" id="msgCount">0</div>
+              <div class="metric-lbl">Exchanges</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="objCount">0</div>
+              <div class="metric-lbl">Objections</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="engScore">—</div>
+              <div class="metric-lbl">Engagement</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="convProb">—</div>
+              <div class="metric-lbl">Conv. Prob.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="summary-btn" id="summaryBtn" onclick="generateSummary()" disabled>
+          Generate Post-Call Summary ↗
+        </button>
+        <div class="summary-box" id="summaryBox" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    //  CONFIG  
+    const API_KEY = "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";
+    const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+    const MODEL = "llama-3.3-70b-versatile";
+
+    //  SYSTEM PROMPT
+
+    const SYSTEM_TEMPLATE = `You are ConvertAI, an AI voice agent for Rupeezy's partner recruitment program.
+Your job: convert leads (sub-brokers / individuals) into Rupeezy partners.
+
+STRUCTURED SCRIPT FLOW:
+1. HOOK       — Introduce yourself, build rapport, mention a business opportunity.
+2. BENEFITS   — Present naturally (not as a list):
+     • ZERO fee to join
+     • 100% brokerage sharing with partners
+     • Daily payouts directly to bank account
+3. OBJECTION HANDLING — Address the 5 core objections with empathy.
+4. CTA        — Get them to sign up or schedule an RM call.
+
+OBJECTION RESPONSES:
+• "Already with broker"     → "That's great! Many partners started the same way. With Rupeezy you earn 100% brokerage—most brokers share only 20-30%. You can do both."
+• "Not enough contacts"     → "You don't need a big network. Even 2-3 clients give meaningful monthly income with daily payouts."
+• "Client support concerns" → "We have dedicated partner support plus 24/7 in-app help for your clients. You're never alone."
+• "Trustworthiness"         → "Rupeezy is SEBI-registered with full regulatory compliance. All transactions are auditable."
+• "Call me later"           → "Absolutely! I can also send details on WhatsApp right now so you have everything when ready."
+
+SEBI COMPLIANCE — NEVER:
+• Say "guaranteed returns" or "guaranteed income"
+• Make misleading earnings claims
+• Omit market-risk disclosure when relevant
+Use "potential earnings" / "you could earn" — never "you will earn".
+
+LANGUAGE: Respond in {LANG}. Be warm and conversational, not robotic.
+
+After EVERY response append this JSON on a new line (the UI parses it — keep it valid JSON):
+[ANALYTICS:{"score":0-100,"tag":"hot|warm|cold|neutral","objDetected":[],"objHandled":[],"engagement":"low|medium|high","convProb":"X%","complianceFlag":false}]
+
+score guide: 0-30=cold | 31-60=warm | 61-100=hot
+Base score on engagement level, questions asked, objections overcome, positive signals.`;
+
+
+    //  STATE
+
+    let history = [];
+    let state = { msgCount: 0, objCount: 0, objStatuses: {}, leadScore: 0, lang: "en" };
+
+    function systemPrompt() {
+      const map = { en: "English", hi: "Hindi", hinglish: "Hinglish (mix Hindi + English naturally)" };
+      return SYSTEM_TEMPLATE.replace("{LANG}", map[state.lang] || "English");
+    }
+
+    //  TEXT HELPERS
+
+    function parseAnalytics(text) {
+      // Brace-depth tracking — regex broke on nested arrays like "objDetected":[]
+      const start = text.indexOf('[ANALYTICS:{');
+      if (start === -1) return null;
+      const jsonStart = start + '[ANALYTICS:'.length;
+      let depth = 0, i = jsonStart;
+      while (i < text.length) {
+        if (text[i] === '{') depth++;
+        else if (text[i] === '}') { depth--; if (depth === 0) break; }
+        i++;
+      }
+      try { return JSON.parse(text.slice(jsonStart, i + 1)); } catch { return null; }
+    }
+    function cleanText(text) {
+      // Slice at [ANALYTICS: — don't use regex (stops at first ] inside arrays)
+      const idx = text.indexOf('[ANALYTICS:');
+      return (idx !== -1 ? text.slice(0, idx) : text).trim();
+    }
+
+
+    //  DOM HELPERS
+
+    function addMessage(role, text, type) {
+      const c = document.getElementById("messages");
+      const isAgent = role === "agent", isSystem = type === "system";
+      const d = document.createElement("div");
+      d.className = "msg" + (isAgent || isSystem ? "" : " user");
+      d.innerHTML = isSystem
+        ? `<div class="msg-bubble system">${text}</div>`
+        : `<div class="msg-avatar ${isAgent ? "agent" : "user"}">${isAgent ? "AI" : "U"}</div>
+       <div class="msg-bubble ${isAgent ? "agent" : "user"}">${text}</div>`;
+      c.appendChild(d);
+      c.scrollTop = c.scrollHeight;
+    }
+
+    function showTyping() {
+      const c = document.getElementById("messages");
+      const d = document.createElement("div");
+      d.className = "msg"; d.id = "typing";
+      d.innerHTML = `<div class="msg-avatar agent">AI</div>
+    <div class="typing-indicator">
+      <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+    </div>`;
+      c.appendChild(d); c.scrollTop = c.scrollHeight;
+    }
+    function removeTyping() { const t = document.getElementById("typing"); if (t) t.remove(); }
+
+    function updateQuickReplies(text) {
+      const qr = document.getElementById("quickReplies");
+      qr.innerHTML = "";
+      const lower = text.toLowerCase();
+      let replies;
+      if (lower.includes("sign up") || lower.includes("join") || lower.includes("register"))
+        replies = ["I'm ready to join", "What are the steps?", "Need more time", "Not interested"];
+      else if (lower.includes("zero fee") || lower.includes("100%") || lower.includes("daily"))
+        replies = ["Sounds good", "Is this legit?", "How many clients do I need?", "Call me later"];
+      else if (lower.includes("interested") || lower.includes("benefit") || lower.includes("earn"))
+        replies = ["Tell me more", "How do payouts work?", "What are the risks?", "I already have a broker"];
+      else
+        replies = ["Yes, tell me more", "I have some concerns", "Not interested right now", "How does it work?"];
+
+      replies.forEach(r => {
+        const btn = document.createElement("button");
+        btn.className = "quick-reply"; btn.textContent = r;
+        btn.onclick = () => { document.getElementById("chatInput").value = r; sendMessage(); };
+        qr.appendChild(btn);
+      });
+    }
+
+
+    //  ANALYTICS UPDATE
+
+    function updateAnalytics(data) {
+      if (!data) return;
+      const score = Math.min(100, Math.max(0, data.score || 0));
+      state.leadScore = score;
+
+      const CIRC = 194.8;
+      const arc = document.getElementById("scoreArc");
+      arc.style.strokeDashoffset = CIRC - (CIRC * score / 100);
+
+      const colors = { hot: "#ff6b6b", warm: "#fbbf24", cold: "#60a5fa", neutral: "#4a5568" };
+      const tag = data.tag || "neutral";
+      arc.style.stroke = colors[tag] || "#00c47d";
+
+      const numEl = document.getElementById("scoreNum");
+      numEl.textContent = score; numEl.style.color = colors[tag];
+
+      const tagEl = document.getElementById("scoreTag");
+      tagEl.className = `score-tag ${tag}`; tagEl.textContent = tag.toUpperCase();
+
+      (data.objDetected || []).forEach(key => {
+        if (!state.objStatuses[key]) {
+          state.objStatuses[key] = "detected";
+          state.objCount++;
+          document.getElementById("objCount").textContent = state.objCount;
+        }
+      });
+      (data.objHandled || []).forEach(key => { state.objStatuses[key] = "handled"; });
+
+      Object.entries(state.objStatuses).forEach(([key, status]) => {
+        const el = document.querySelector(`[data-obj="${key}"]`);
+        if (!el) return;
+        el.className = `obj-item ${status}`;
+        el.querySelector(".obj-dot").className = `obj-dot ${status}`;
+        el.querySelector(".obj-text").className = `obj-text ${status}`;
+      });
+
+      if (data.engagement) {
+        const engEl = document.getElementById("engScore");
+        engEl.textContent = { low: "↓", medium: "~", high: "↑" }[data.engagement] || "~";
+        engEl.style.color = data.engagement === "high" ? "#00c47d" : data.engagement === "medium" ? "#fbbf24" : "#60a5fa";
+      }
+      if (data.convProb) document.getElementById("convProb").textContent = data.convProb;
+      if (data.complianceFlag) {
+        document.getElementById("compAudit").innerHTML =
+          '<span class="comp-icon comp-warn">!</span><div class="comp-text warn">Compliance flag raised</div>';
+      }
+    }
+
+
+    //  SEND MESSAGE
+
+    async function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const text = input.value.trim();
+      if (!text || sendBtn.disabled) return;
+
+      input.value = ""; sendBtn.disabled = true;
+      document.getElementById("quickReplies").innerHTML = "";
+      document.getElementById("summaryBtn").disabled = false;
+
+      addMessage("user", text);
+      history.push({ role: "user", content: text });
+      document.getElementById("msgCount").textContent = ++state.msgCount;
+      showTyping();
+
+      try {
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + API_KEY
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            max_tokens: 1000,
+            messages: [
+              { role: "system", content: systemPrompt() },
+              ...history
+            ]
+          })
+        });
+
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error.message);
+
+        // Groq/OpenAI format: choices[0].message.content
+        const rawText = data.choices?.[0]?.message?.content || "No response.";
+        const analytics = parseAnalytics(rawText);
+        const cleanedText = cleanText(rawText);
+
+        removeTyping();
+        history.push({ role: "assistant", content: rawText });
+        addMessage("agent", cleanedText);
+        updateAnalytics(analytics);
+        updateQuickReplies(cleanedText);
+      } catch (err) {
+        removeTyping();
+        addMessage("agent", "⚠ Error: " + err.message, "system");
+        console.error(err);
+      }
+
+      sendBtn.disabled = false;
+      input.focus();
+    }
+
+
+    //  POST-CALL SUMMARY
+
+    async function generateSummary() {
+      const btn = document.getElementById("summaryBtn");
+      btn.disabled = true; btn.textContent = "Generating...";
+
+      const summaryBox = document.getElementById("summaryBox");
+      summaryBox.style.display = "block"; summaryBox.textContent = "...";
+
+      const score = state.leadScore;
+      const tag = score > 60 ? "HOT" : score > 30 ? "WARM" : "COLD";
+      const handled = Object.entries(state.objStatuses).filter(([, v]) => v === "handled").map(([k]) => k);
+      const transcript = history.map(m => m.role.toUpperCase() + ": " + cleanText(m.content)).join("\n");
+
+      try {
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + API_KEY
+          },
+          body: JSON.stringify({
+            model: MODEL, max_tokens: 600,
+            messages: [{
+              role: "user",
+              content: `Generate a concise post-call summary for this ConvertAI agent call.
+
+TRANSCRIPT:
+${transcript}
+
+METADATA:
+• Lead Score: ${score}/100 (${tag})
+• Objections handled: ${handled.join(", ") || "none"}
+• Exchanges: ${state.msgCount}
+
+Format exactly as:
+DURATION: ~${Math.ceil(state.msgCount * 1.5)} min
+LEAD STATUS: ${tag}
+TOPICS COVERED: [comma list]
+OBJECTIONS: [each with resolution note]
+INTEREST SCORE: ${score}/100
+RECOMMENDED ACTION: [specific next step]
+NOTES: [1-2 line insight]`
+            }]
+          })
+        });
+
+        const data = await resp.json();
+        const sd = await resp.json();
+        summaryBox.textContent = sd.error
+          ? "Error: " + sd.error.message
+          : (sd.choices?.[0]?.message?.content || "Could not generate summary.");
+      } catch {
+        summaryBox.textContent = "Error — check API key.";
+      }
+
+      btn.textContent = "Regenerate Summary ↗"; btn.disabled = false;
+    }
+
+
+    //  EVENT LISTENERS
+    document.getElementById("langSelect").onchange = e => { state.lang = e.target.value; };
+    document.getElementById("chatInput").addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+
+    //  BOOT — seed first agent message
+    const BOOT = "Hi! I'm ConvertAI, Rupeezy's partner recruitment agent. I'm reaching out about a business opportunity that could help you earn daily income with zero upfront cost. Do you have 2 minutes?";
+    addMessage("agent", BOOT);
+    history.push({ role: "assistant", content: BOOT + ' [ANALYTICS:{"score":10,"tag":"neutral","objDetected":[],"objHandled":[],"engagement":"low","convProb":"5%","complianceFlag":false}]' });
+    updateAnalytics({ score: 10, tag: "neutral", objDetected: [], objHandled: [], engagement: "low", convProb: "5%", complianceFlag: false });
+    updateQuickReplies("interest earn opportunity");
+  </script>
+</body>
+
+</html>
