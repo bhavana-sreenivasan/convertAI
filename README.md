@@ -20,9 +20,25 @@ Built for the **AI for Bharat** hackathon. The whole app is a single static file
 - **Quick-reply buttons**: context-aware suggestions that change with the agent's last message.
 - **Post-call summary**: generates duration, lead status, topics covered, objection resolutions, recommended next action, and notes.
 
+## Screenshots
+
+> UI preview using a simulated conversation (scripted replies), to show the layout and dashboard. Real model output will vary.
+
+| Start | Objection handling |
+| --- | --- |
+| ![Start screen](screenshots/1-start.png) | ![Objection handling](screenshots/2-objection.png) |
+
+| Hot lead + SEBI compliance panel | Post-call summary |
+| --- | --- |
+| ![Hot lead](screenshots/3-hot-lead.png) | ![Post-call summary](screenshots/4-summary.png) |
+
+## Results
+
+Results from running the agent are available in the [`results/`](results/) folder.
+
 ## How it works
 
-1. The browser sends the conversation history plus a system prompt to the Groq chat completions API (OpenAI-compatible) using the `llama-3.3-70b-versatile` model.
+1. The browser sends the conversation history plus a system prompt to the Groq chat completions API (OpenAI-compatible) using the `openai/gpt-oss-120b` model.
 2. The system prompt tells the model to end every reply with a machine-readable block:
    ```
    [ANALYTICS:{"score":0-100,"tag":"hot|warm|cold|neutral","objDetected":[],"objHandled":[],"engagement":"low|medium|high","convProb":"X%","complianceFlag":false}]
@@ -46,19 +62,20 @@ git clone https://github.com/bhavana-sreenivasan/convertAI
 cd convertAI
 ```
 
-Open `convertai.html` and set your key in the config block at the top of the `<script>`:
-
-```js
-const API_KEY = "YOUR_GROQ_API_KEY";
-const API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL   = "llama-3.3-70b-versatile";
-```
-
-Then either double-click the file (`start convertai.html` on Windows PowerShell), or serve it locally:
+Serve the file locally:
 
 ```bash
 python -m http.server 8000
 # open http://localhost:8000/convertai.html
+```
+
+On first load the app asks for your Groq API key and stores it in your browser's `localStorage` (it is never written to the code or the repo). To clear it, run `localStorage.removeItem("groq_key")` in the browser console.
+
+The endpoint and model are set in the config block at the top of the `<script>`:
+
+```js
+const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const MODEL   = "openai/gpt-oss-120b";
 ```
 
 ## Usage
@@ -72,7 +89,7 @@ python -m http.server 8000
 
 | Setting | Where | Purpose |
 | --- | --- | --- |
-| `API_KEY` | top of `<script>` | Groq API key |
+| `API_KEY` | browser prompt (`localStorage`) | Groq API key, entered on first load |
 | `MODEL` | top of `<script>` | Any chat model available on Groq |
 | `SYSTEM_TEMPLATE` | top of `<script>` | Sales script, objection responses, compliance rules |
 | `{LANG}` | `systemPrompt()` | Replaced with English, Hindi, or Hinglish |
@@ -81,7 +98,7 @@ To adapt the agent to another product, edit `SYSTEM_TEMPLATE` (benefits, objecti
 
 ## Security note
 
-This is a demo. The API key lives in client-side JavaScript, so anyone who opens the page can read it. **Never commit a real key to a public repository.** For anything beyond a demo, route requests through a small backend or serverless function that holds the key and forwards calls to Groq.
+This is a demo. The key you enter is stored in your own browser and sent only to Groq, but anything in client-side JavaScript can be read by the person using that browser. **Never commit a real key to a public repository.** For anything beyond a demo, route requests through a small backend or serverless function that holds the key and forwards calls to Groq.
 
 ## Limitations
 
@@ -92,7 +109,7 @@ This is a demo. The API key lives in client-side JavaScript, so anyone who opens
 
 ## Tech stack
 
-HTML, CSS, vanilla JavaScript · Groq API (Llama 3.3 70B) · Google Fonts (Syne, DM Mono)
+HTML, CSS, vanilla JavaScript · Groq API (GPT-OSS 120B) · Google Fonts (Syne, DM Mono)
 
 ## Disclaimer
 
