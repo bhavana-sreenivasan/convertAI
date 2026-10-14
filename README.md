@@ -26,11 +26,11 @@ Built for the **AI for Bharat** hackathon. The whole app is a single static file
 
 | Start | Objection handling |
 | --- | --- |
-| ![Start screen](screenshots/1-start.png) | ![Objection handling](screenshots/2-objection.png) |
+| ![Start screen](results/1-start.png) | ![Objection handling](results/2-objection.png) |
 
 | Hot lead + SEBI compliance panel | Post-call summary |
 | --- | --- |
-| ![Hot lead](screenshots/3-hot-lead.png) | ![Post-call summary](screenshots/4-summary.png) |
+| ![Hot lead](results/3-hot-lead.png) | ![Post-call summary](results/4-summary.png) |
 
 ## Results
 
