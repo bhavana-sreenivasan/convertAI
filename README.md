@@ -1,111 +1,99 @@
-# ConvertAI 
-### Multilingual Voice Agent for Partner Lead Conversion
-> Built for **AI for Bharat 2** Hackathon · Theme 7 — AI Voice Agent for Partner Lead Conversion
+# ConvertAI — Rupeezy Partner Recruitment Agent
 
----
+ConvertAI is an AI sales-agent demo that converses with leads (prospective sub-brokers) and tries to convert them into Rupeezy partners. While the conversation runs, a live dashboard scores the lead, tracks objections, checks SEBI-compliance rules, and can produce a post-call summary for the relationship manager.
 
-##  Live Demo
-[bhavana-sreenivasan.github.io/convertAI](https://bhavana-sreenivasan.github.io/convertAI)
+Built for the **AI for Bharat** hackathon. The whole app is a single static file: `convertai.html`.
 
-> You'll need a free Groq API key to use the demo. Get one at [console.groq.com](https://console.groq.com)
+## Features
 
----
+- **Scripted sales flow**: Hook → Benefits → Objection handling → Call to action, driven by a system prompt.
+- **Multilingual**: English, Hindi, and Hinglish, selectable from the header dropdown.
+- **Live lead scoring**: a 0–100 score with a Hot / Warm / Cold tag, updated after every reply.
+- **Objection tracker**: detects and marks as handled the five core objections:
+  - Already with a broker
+  - Not enough contacts
+  - Client support concerns
+  - Trustworthiness
+  - "Call me later"
+- **SEBI compliance panel**: the agent is instructed never to promise guaranteed returns or make misleading earnings claims, and can raise a compliance flag in the UI.
+- **Call metrics**: exchanges, objections, engagement level, and conversion probability.
+- **Quick-reply buttons**: context-aware suggestions that change with the agent's last message.
+- **Post-call summary**: generates duration, lead status, topics covered, objection resolutions, recommended next action, and notes.
 
-##  The Problem
-Rupeezy loses **82% of partner leads** due to:
-- No 24/7 availability
-- Language barriers (Hindi / Hinglish speakers)
-- Inconsistent follow-up and objection handling
+## How it works
 
----
+1. The browser sends the conversation history plus a system prompt to the Groq chat completions API (OpenAI-compatible) using the `llama-3.3-70b-versatile` model.
+2. The system prompt tells the model to end every reply with a machine-readable block:
+   ```
+   [ANALYTICS:{"score":0-100,"tag":"hot|warm|cold|neutral","objDetected":[],"objHandled":[],"engagement":"low|medium|high","convProb":"X%","complianceFlag":false}]
+   ```
+3. The UI parses that block (`parseAnalytics`), strips it from the visible message (`cleanText`), and updates the score ring, objection list, metrics, and compliance panel.
 
-##  The Solution
-ConvertAI is a real-time AI agent that handles the full partner recruitment conversation — from opening hook to signup — autonomously, at scale, in any language.
+There is no backend and no build step. Everything runs in the browser.
 
----
+## Getting started
 
-##  Features
+### Prerequisites
 
-| Feature | Description |
-|---|---|
-|  Multilingual | Responds in English, Hindi, or Hinglish |
-|  Live Lead Scoring | Real-time Hot / Warm / Cold classification (0–100) |
-|  Objection Handling | Detects & resolves the 5 core objections |
-|  SEBI Compliance | Flags prohibited claims instantly |
-|  Post-Call Summary | Auto-generates structured call summaries |
-|  Low Latency | Sub-second responses via Groq |
+- A modern browser
+- A free [Groq API key](https://console.groq.com/keys)
+- Optional: Python 3 or Node.js to serve the file locally
 
----
-
-##  Conversation Script
-
-```
-Hook → Benefits → Objection Handling → CTA
-```
-
-**3 Core Benefits pitched:**
-- Zero joining fee
-- 100% brokerage sharing
-- Daily payouts to bank account
-
-**5 Objections handled:**
-1. Already with a broker
-2. Not enough contacts
-3. Client support concerns
-4. Trustworthiness
-5. Call me later
-
----
-
-##  Tech Stack
-
-- **LLM** — LLaMA 3.3 70B via [Groq](https://groq.com) (free tier)
-- **Frontend** — Vanilla HTML / CSS / JS (zero dependencies)
-- **Hosting** — GitHub Pages (free)
-
----
-
-##  Run Locally
-
-No installation needed. Just open the file:
+### Run it
 
 ```bash
 git clone https://github.com/bhavana-sreenivasan/convertAI
 cd convertAI
-open convertai.html   # or double-click the file
 ```
 
-Enter your Groq API key when prompted and start the session.
+Open `convertai.html` and set your key in the config block at the top of the `<script>`:
 
----
-
-##  Getting a Groq API Key
-
-1. Go to [console.groq.com](https://console.groq.com)
-2. Sign up for free
-3. Navigate to **API Keys** → **Create API Key**
-4. Paste it into the ConvertAI prompt on launch
-
-> Your key is never stored — it lives only in memory for that browser session.
-
----
-
-##  Target Impact
-
-| Metric | Value |
-|---|---|
-| Current conversion rate | 18% |
-| Target conversion rate | 40%+ |
-| Cost per call | < ₹8.40 |
-| Availability | 24/7 |
-| Languages supported | English, Hindi, Hinglish |
-
----
-
-##  Project Structure
-
-```
-convertAI/
-└── convertai.html      # Entire app — UI + agent logic + analytics
+```js
+const API_KEY = "YOUR_GROQ_API_KEY";
+const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const MODEL   = "llama-3.3-70b-versatile";
 ```
 
+Then either double-click the file (`start convertai.html` on Windows PowerShell), or serve it locally:
+
+```bash
+python -m http.server 8000
+# open http://localhost:8000/convertai.html
+```
+
+## Usage
+
+1. Pick a language in the top-right dropdown.
+2. Reply to the agent by typing, or use the quick-reply buttons. Try raising objections like *"I already have a broker"* or *"Is this legit?"*.
+3. Watch the right-hand panel update: lead score, objection status, compliance checks, and metrics.
+4. Click **Generate Post-Call Summary** to get a hand-off note.
+
+## Configuration
+
+| Setting | Where | Purpose |
+| --- | --- | --- |
+| `API_KEY` | top of `<script>` | Groq API key |
+| `MODEL` | top of `<script>` | Any chat model available on Groq |
+| `SYSTEM_TEMPLATE` | top of `<script>` | Sales script, objection responses, compliance rules |
+| `{LANG}` | `systemPrompt()` | Replaced with English, Hindi, or Hinglish |
+
+To adapt the agent to another product, edit `SYSTEM_TEMPLATE` (benefits, objection responses) and the objection list in the HTML.
+
+## Security note
+
+This is a demo. The API key lives in client-side JavaScript, so anyone who opens the page can read it. **Never commit a real key to a public repository.** For anything beyond a demo, route requests through a small backend or serverless function that holds the key and forwards calls to Groq.
+
+## Limitations
+
+- Lead scores and "SEBI compliance" are produced by the LLM following a prompt. They are not a substitute for a real compliance review or audit trail.
+- The agent is text-only. Voice input and output are not implemented.
+- Conversation history lives in memory and is lost on refresh.
+- Analytics depend on the model returning valid JSON; if it doesn't, the dashboard simply doesn't update for that turn.
+
+## Tech stack
+
+HTML, CSS, vanilla JavaScript · Groq API (Llama 3.3 70B) · Google Fonts (Syne, DM Mono)
+
+## Disclaimer
+
+This project is a hackathon prototype and is not an official Rupeezy product. Investing in the securities market carries risk, and nothing generated by the agent should be treated as a guarantee of earnings.
