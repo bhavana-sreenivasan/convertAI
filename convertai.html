@@ -1034,10 +1034,9 @@ NOTES: [1-2 line insight]`
         });
 
         const data = await resp.json();
-        const sd = await resp.json();
-        summaryBox.textContent = sd.error
-          ? "Error: " + sd.error.message
-          : (sd.choices?.[0]?.message?.content || "Could not generate summary.");
+        summaryBox.textContent = data.error
+          ? "Error: " + data.error.message
+          : (data.choices?.[0]?.message?.content || "Could not generate summary.");
       } catch {
         summaryBox.textContent = "Error — check API key.";
       }
